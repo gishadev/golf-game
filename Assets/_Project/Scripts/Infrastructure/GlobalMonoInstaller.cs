@@ -1,9 +1,11 @@
-using UnityEngine;
 using Zenject;
 
-public class GlobalMonoInstaller : MonoInstaller
+namespace gishadev.golf.Infrastructure
 {
-    public override void InstallBindings()
+    public class GlobalMonoInstaller : MonoInstaller
     {
+        public override void InstallBindings()
+        {
+        }
     }
 }
