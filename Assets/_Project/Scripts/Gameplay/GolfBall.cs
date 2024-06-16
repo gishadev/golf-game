@@ -30,6 +30,11 @@ namespace gishadev.golf.Gameplay
             _input = new CustomInput();
         }
 
+        private void Start()
+        {
+            ChangeBodyType(RigidbodyType2D.Dynamic);
+        }
+
         private void OnEnable()
         {
             _input.Enable();
@@ -44,19 +49,6 @@ namespace gishadev.golf.Gameplay
             _input.Gameplay.ClubUp.performed -= OnClubUp;
         }
         
-        private void OnClubUp(InputAction.CallbackContext obj)
-        {
-            _lr.enabled = false;
-            _isClubDown = false;
-            _rb.AddForce(PunchDirection * (PunchForcePercentage * maxPunchForce), ForceMode2D.Impulse);
-        }
-
-        private void OnClubDown(InputAction.CallbackContext obj)
-        {
-            _lr.enabled = true;
-            _isClubDown = true;
-        }
-
         private void Update()
         {
             if (_isClubDown)
@@ -72,5 +64,25 @@ namespace gishadev.golf.Gameplay
                     (Vector2) transform.position - PunchDirection * (PunchForcePercentage * maxLineLength));
             }
         }
+
+        public void ChangeBodyType(RigidbodyType2D bodyType)
+        {
+            _rb.bodyType = bodyType;
+        }
+        
+        private void OnClubUp(InputAction.CallbackContext obj)
+        {
+            _lr.enabled = false;
+            _isClubDown = false;
+            _rb.AddForce(PunchDirection * (PunchForcePercentage * maxPunchForce), ForceMode2D.Impulse);
+        }
+
+        private void OnClubDown(InputAction.CallbackContext obj)
+        {
+            _lr.enabled = true;
+            _isClubDown = true;
+        }
+
+
     }
 }

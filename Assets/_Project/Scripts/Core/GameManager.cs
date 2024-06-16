@@ -18,9 +18,10 @@ namespace gishadev.golf.Core
             Hole.BallEnteredHole -= OnBallEnteredHole;
         }
         
-        private void OnBallEnteredHole()
+        private void OnBallEnteredHole(GolfBall ball)
         {
             Debug.Log("Ball entered hole");
+            Won?.Invoke();
         }
     }
 }
