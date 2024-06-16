@@ -9,7 +9,8 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4a0ee95a1b0b97a469aa3db3fd1215df, type: 3}
-  m_Name: SOInstaller
+  m_Script: {fileID: 11500000, guid: b26e94d13e6049f5b9373af468631077, type: 3}
+  m_Name: GameData
   m_EditorClassIdentifier: 
-  gameDataSO: {fileID: 11400000, guid: 149b6904cc3d5924ca85aa7182a7e423, type: 2}
+  maxLineLength: 3.5
+  maxPunchForce: 13
