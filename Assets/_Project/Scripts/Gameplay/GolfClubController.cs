@@ -41,7 +41,7 @@ namespace gishadev.golf.Gameplay
             {
                 _mousePos = _cam.ScreenToWorldPoint(Input.mousePosition);
 
-                var punchVector = (Vector2) transform.position - _mousePos;
+                var punchVector = (Vector2) SelectedGolfBall.transform.position - _mousePos;
                 PunchDirection = punchVector.normalized;
                 PunchForcePercentage = Mathf.Min(punchVector.magnitude, _gameDataSO.MaxLineLength) /
                                        _gameDataSO.MaxLineLength;
