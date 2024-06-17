@@ -13,4 +13,4 @@ MonoBehaviour:
   m_Name: GameData
   m_EditorClassIdentifier: 
   maxLineLength: 3.5
-  maxPunchForce: 13
+  maxPunchForce: 30

@@ -1,5 +1,4 @@
-﻿using System;
-using gisha.golf;
+﻿using gisha.golf;
 using gishadev.golf.Core;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -37,6 +36,8 @@ namespace gishadev.golf.Gameplay
 
         private void Update()
         {
+            if (SelectedGolfBall.Velocity.magnitude > 0) return;
+
             if (_isClubDown)
             {
                 _mousePos = _cam.ScreenToWorldPoint(Input.mousePosition);
@@ -48,7 +49,8 @@ namespace gishadev.golf.Gameplay
 
                 _lr.SetPosition(0, SelectedGolfBall.transform.position);
                 _lr.SetPosition(1,
-                    (Vector2) SelectedGolfBall.transform.position - PunchDirection * (PunchForcePercentage * _gameDataSO.MaxLineLength));
+                    (Vector2) SelectedGolfBall.transform.position -
+                    PunchDirection * (PunchForcePercentage * _gameDataSO.MaxLineLength));
             }
         }
 
@@ -68,6 +70,8 @@ namespace gishadev.golf.Gameplay
 
         private void OnClubUp(InputAction.CallbackContext obj)
         {
+            if (SelectedGolfBall.Velocity.magnitude > 0) return;
+            
             _lr.enabled = false;
             _isClubDown = false;
             SelectedGolfBall.AddImpulseForce(PunchDirection * (PunchForcePercentage * _gameDataSO.MaxPunchForce));
@@ -75,6 +79,8 @@ namespace gishadev.golf.Gameplay
 
         private void OnClubDown(InputAction.CallbackContext obj)
         {
+            if (SelectedGolfBall.Velocity.magnitude > 0) return;
+            
             _lr.enabled = true;
             _isClubDown = true;
         }
