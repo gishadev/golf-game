@@ -1,4 +1,5 @@
-﻿using gisha.golf;
+﻿using System;
+using gisha.golf;
 using gishadev.golf.Core;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -11,9 +12,11 @@ namespace gishadev.golf.Gameplay
         [Inject] private GameDataSO _gameDataSO;
 
         public GolfBall SelectedGolfBall { get; private set; }
+        public static event Action ClubDown;
+        public static event Action ClubUp;
 
-        private Vector2 PunchDirection { get; set; }
-        private float PunchForcePercentage { get; set; }
+        private Vector2 _punchDirection;
+        private float _punchForcePercentage;
 
         private CustomInput _input;
         private LineRenderer _lr;
@@ -43,14 +46,14 @@ namespace gishadev.golf.Gameplay
                 _mousePos = _cam.ScreenToWorldPoint(Input.mousePosition);
 
                 var punchVector = (Vector2) SelectedGolfBall.transform.position - _mousePos;
-                PunchDirection = punchVector.normalized;
-                PunchForcePercentage = Mathf.Min(punchVector.magnitude, _gameDataSO.MaxLineLength) /
+                _punchDirection = punchVector.normalized;
+                _punchForcePercentage = Mathf.Min(punchVector.magnitude, _gameDataSO.MaxLineLength) /
                                        _gameDataSO.MaxLineLength;
 
                 _lr.SetPosition(0, SelectedGolfBall.transform.position);
                 _lr.SetPosition(1,
                     (Vector2) SelectedGolfBall.transform.position -
-                    PunchDirection * (PunchForcePercentage * _gameDataSO.MaxLineLength));
+                    _punchDirection * (_punchForcePercentage * _gameDataSO.MaxLineLength));
             }
         }
 
@@ -74,7 +77,9 @@ namespace gishadev.golf.Gameplay
             
             _lr.enabled = false;
             _isClubDown = false;
-            SelectedGolfBall.AddImpulseForce(PunchDirection * (PunchForcePercentage * _gameDataSO.MaxPunchForce));
+            SelectedGolfBall.AddImpulseForce(_punchDirection * (_punchForcePercentage * _gameDataSO.MaxPunchForce));
+            
+            ClubDown?.Invoke();
         }
 
         private void OnClubDown(InputAction.CallbackContext obj)
@@ -83,6 +88,8 @@ namespace gishadev.golf.Gameplay
             
             _lr.enabled = true;
             _isClubDown = true;
+            
+            ClubUp?.Invoke();
         }
     }
 }
