@@ -85,8 +85,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cb42d381df6b479e8208d90c146be50e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  zoomOutSize: 8
-  zoomOutSpeed: 3
+  zoomOutSize: 7.5
+  zoomTime: 0.3
 --- !u!1 &3223143561194376495
 GameObject:
   m_ObjectHideFlags: 0

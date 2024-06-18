@@ -12,5 +12,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b26e94d13e6049f5b9373af468631077, type: 3}
   m_Name: GameData
   m_EditorClassIdentifier: 
-  maxLineLength: 3.5
+  maxLineLength: 4
   maxPunchForce: 30
