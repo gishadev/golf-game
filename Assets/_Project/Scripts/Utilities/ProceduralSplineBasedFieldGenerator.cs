@@ -8,33 +8,46 @@ using Zenject;
 namespace gishadev.golf.Utilities
 {
     [RequireComponent(typeof(SplineContainer), typeof(MeshFilter), typeof(MeshRenderer))]
-    public class ProceduralSplineBasedMeshGenerator : MonoBehaviour
+    [RequireComponent(typeof(LineRenderer), typeof(EdgeCollider2D))]
+    public class ProceduralSplineBasedFieldGenerator : MonoBehaviour
     {
-        [Inject] private GameDataSO _gameDataSO;
+        [SerializeField] private GameDataSO gameDataSO;
 
         private SplineContainer _splineContainer;
         private MeshFilter _meshFilter;
         private MeshRenderer _meshRenderer;
+        
+        private LineRenderer _lineRenderer;
+        private EdgeCollider2D _edgeCollider;
 
         private void Initialize()
         {
+            _lineRenderer = GetComponent<LineRenderer>();
+            _edgeCollider = GetComponent<EdgeCollider2D>();
             _splineContainer = GetComponent<SplineContainer>();
             _meshFilter = GetComponent<MeshFilter>();
+
             _meshRenderer = GetComponent<MeshRenderer>();
+            _meshRenderer.material = gameDataSO.FieldMaterial;
         }
 
-        // Knots are vertices
         [Button]
-        private void GenerateMesh()
+        private void GenerateField()
         {
             Initialize();
-
+            
+            var knots = _splineContainer.Splines[0].Knots.ToArray();
+            GenerateMesh(knots);
+            GenerateEdge(knots);
+        } 
+        
+        private void GenerateMesh(BezierKnot[] knots)
+        {
             var mesh = new Mesh
             {
                 name = "Procedural Mesh"
             };
 
-            var knots = _splineContainer.Splines[0].Knots.ToArray();
             var vertices = knots
                 .Select(x => (Vector3) x.Position)
                 .ToArray();
@@ -43,7 +56,7 @@ namespace gishadev.golf.Utilities
             mesh.triangles = GenerateTriangles(vertices.Length);
             _meshFilter.mesh = mesh;
         }
-        
+
         private int[] GenerateTriangles(int vertexCount)
         {
             // Assume a simple shape where vertices are connected in a fan pattern
@@ -58,6 +71,15 @@ namespace gishadev.golf.Utilities
             }
 
             return triangles;
+        }
+
+        private void GenerateEdge(BezierKnot[] knots)
+        {
+            _lineRenderer.positionCount = knots.Length;
+            
+            var positions = knots.Select(x => (Vector3) x.Position).ToArray();
+            _lineRenderer.SetPositions(positions);
+            _edgeCollider.points = positions.Select(x => (Vector2) x).ToArray();
         }
     }
 }
