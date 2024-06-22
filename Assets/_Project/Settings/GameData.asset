@@ -14,3 +14,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   maxLineLength: 4
   maxPunchForce: 30
+  fieldMaterial: {fileID: 2100000, guid: 977469004d6680549a21edbf95cc5de1, type: 2}

@@ -7,9 +7,11 @@ namespace gishadev.golf.Core
     {
         [SerializeField] private float maxLineLength = 3.5f;
         [SerializeField] private float maxPunchForce = 13f;
-
+        [SerializeField] private Material fieldMaterial;
+        
+        
         public float MaxLineLength => maxLineLength;
-
         public float MaxPunchForce => maxPunchForce;
+        public Material FieldMaterial => fieldMaterial;
     }
 }
