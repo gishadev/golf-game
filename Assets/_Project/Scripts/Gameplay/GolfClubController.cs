@@ -10,10 +10,13 @@ namespace gishadev.golf.Gameplay
     public class GolfClubController : MonoBehaviour
     {
         [Inject] private GameDataSO _gameDataSO;
+        [Inject] private IGameManager _gameManager;
 
-        public GolfBall SelectedGolfBall { get; private set; }
         public static event Action ClubDown;
+        public static event Action ClubPunch;
         public static event Action ClubUp;
+        
+        private GolfBall SelectedGolfBall => _gameManager.CurrentTurnPlayer.GolfPlayerContainer.GolfBall;
 
         private Vector2 _punchDirection;
         private float _punchForcePercentage;
@@ -30,11 +33,6 @@ namespace gishadev.golf.Gameplay
 
             _lr = GetComponentInChildren<LineRenderer>();
             _input = new CustomInput();
-        }
-
-        private void Start()
-        {
-            SelectedGolfBall = FindObjectOfType<GolfBall>();
         }
 
         private void Update()
@@ -80,12 +78,12 @@ namespace gishadev.golf.Gameplay
             SelectedGolfBall.AddImpulseForce(_punchDirection * (_punchForcePercentage * _gameDataSO.MaxPunchForce));
             
             ClubUp?.Invoke();
+            ClubPunch?.Invoke();
         }
 
         private void OnClubDown(InputAction.CallbackContext obj)
         {
             if (SelectedGolfBall.Velocity.magnitude > 0) return;
-            
             
             _lr.enabled = true;
             _isClubDown = true;

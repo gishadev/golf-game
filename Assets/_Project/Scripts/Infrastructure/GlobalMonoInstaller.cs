@@ -1,3 +1,4 @@
+using gishadev.golf.Core;
 using Zenject;
 
 namespace gishadev.golf.Infrastructure
@@ -6,6 +7,9 @@ namespace gishadev.golf.Infrastructure
     {
         public override void InstallBindings()
         {
+            SignalBusInstaller.Install(Container);
+            
+            Container.BindInterfacesTo<GameManager>().AsSingle().NonLazy();
         }
     }
 }
