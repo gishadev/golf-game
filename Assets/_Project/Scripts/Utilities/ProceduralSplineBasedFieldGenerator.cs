@@ -1,9 +1,10 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using gishadev.golf.Core;
+using mattatz.Triangulation2DSystem;
 using Sirenix.OdinInspector;
 using UnityEngine;
 using UnityEngine.Splines;
-using Zenject;
 
 namespace gishadev.golf.Utilities
 {
@@ -16,7 +17,7 @@ namespace gishadev.golf.Utilities
         private SplineContainer _splineContainer;
         private MeshFilter _meshFilter;
         private MeshRenderer _meshRenderer;
-        
+
         private LineRenderer _lineRenderer;
         private EdgeCollider2D _edgeCollider;
 
@@ -35,51 +36,39 @@ namespace gishadev.golf.Utilities
         private void GenerateField()
         {
             Initialize();
-            
+
             var knots = _splineContainer.Splines[0].Knots.ToArray();
             GenerateMesh(knots);
             GenerateEdge(knots);
-        } 
-        
+        }
+
         private void GenerateMesh(BezierKnot[] knots)
         {
-            var mesh = new Mesh
-            {
-                name = "Procedural Mesh"
-            };
-
             var vertices = knots
                 .Select(x => (Vector3) x.Position)
                 .ToArray();
 
-            mesh.vertices = vertices;
-            mesh.triangles = GenerateTriangles(vertices.Length);
+            List<Vector2> points = new List<Vector2>();
+            points.AddRange(vertices.Select(x => (Vector2) x));
+
+            Polygon2D polygon = Polygon2D.Contour(points.ToArray());
+            Triangulation2D triangulation = new Triangulation2D(polygon, 22.5f);
+
+            Mesh mesh = triangulation.Build();
             _meshFilter.mesh = mesh;
-        }
-
-        private int[] GenerateTriangles(int vertexCount)
-        {
-            // Assume a simple shape where vertices are connected in a fan pattern
-            int triangleCount = (vertexCount - 2) * 3;
-            int[] triangles = new int[triangleCount];
-
-            for (int i = 0; i < vertexCount - 2; i++)
-            {
-                triangles[i * 3] = 0;
-                triangles[i * 3 + 1] = i + 1;
-                triangles[i * 3 + 2] = i + 2;
-            }
-
-            return triangles;
         }
 
         private void GenerateEdge(BezierKnot[] knots)
         {
             _lineRenderer.positionCount = knots.Length;
-            
-            var positions = knots.Select(x => (Vector3) x.Position).ToArray();
+
+            var positions = knots
+                .Select(x => (Vector3) x.Position)
+                .ToArray();
             _lineRenderer.SetPositions(positions);
-            _edgeCollider.points = positions.Select(x => (Vector2) x).ToArray();
+            _edgeCollider.points = positions
+                .Select(x => (Vector2) x)
+                .ToArray();
         }
     }
 }
