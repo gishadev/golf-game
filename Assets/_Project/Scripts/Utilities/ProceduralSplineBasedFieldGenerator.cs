@@ -66,9 +66,13 @@ namespace gishadev.golf.Utilities
                 .Select(x => (Vector3) x.Position)
                 .ToArray();
             _lineRenderer.SetPositions(positions);
-            _edgeCollider.points = positions
+            
+            // loop edge collider, add first point to the end.
+            var edgeColliderPoints = positions
                 .Select(x => (Vector2) x)
-                .ToArray();
+                .ToList();
+            edgeColliderPoints.Add(edgeColliderPoints[0]);
+            _edgeCollider.points = edgeColliderPoints.ToArray();
         }
     }
 }
