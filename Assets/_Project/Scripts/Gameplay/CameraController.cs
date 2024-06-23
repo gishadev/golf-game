@@ -34,13 +34,13 @@ namespace gishadev.golf.Gameplay
         private void OnClubUp()
         {
             DOTween.To(() => _virtualCamera.m_Lens.OrthographicSize, x => _virtualCamera.m_Lens.OrthographicSize = x,
-                zoomOutSize, zoomTime);
+                _startOrthographicSize, zoomTime);
         }
 
         private void OnClubDown()
         {
             DOTween.To(() => _virtualCamera.m_Lens.OrthographicSize, x => _virtualCamera.m_Lens.OrthographicSize = x,
-                _startOrthographicSize, zoomTime);
+                zoomOutSize, zoomTime);
         }
     }
 }

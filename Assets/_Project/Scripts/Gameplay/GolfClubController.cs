@@ -79,17 +79,18 @@ namespace gishadev.golf.Gameplay
             _isClubDown = false;
             SelectedGolfBall.AddImpulseForce(_punchDirection * (_punchForcePercentage * _gameDataSO.MaxPunchForce));
             
-            ClubDown?.Invoke();
+            ClubUp?.Invoke();
         }
 
         private void OnClubDown(InputAction.CallbackContext obj)
         {
             if (SelectedGolfBall.Velocity.magnitude > 0) return;
             
+            
             _lr.enabled = true;
             _isClubDown = true;
             
-            ClubUp?.Invoke();
+            ClubDown?.Invoke();
         }
     }
 }
