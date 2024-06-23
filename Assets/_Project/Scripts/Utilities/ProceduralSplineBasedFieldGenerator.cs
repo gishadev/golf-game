@@ -2,7 +2,6 @@
 using System.Linq;
 using gishadev.golf.Core;
 using mattatz.Triangulation2DSystem;
-using Sirenix.OdinInspector;
 using UnityEngine;
 using UnityEngine.Splines;
 
@@ -10,6 +9,7 @@ namespace gishadev.golf.Utilities
 {
     [RequireComponent(typeof(SplineContainer), typeof(MeshFilter), typeof(MeshRenderer))]
     [RequireComponent(typeof(LineRenderer), typeof(EdgeCollider2D))]
+    [ExecuteInEditMode]
     public class ProceduralSplineBasedFieldGenerator : MonoBehaviour
     {
         [SerializeField] private GameDataSO gameDataSO;
@@ -20,6 +20,9 @@ namespace gishadev.golf.Utilities
 
         private LineRenderer _lineRenderer;
         private EdgeCollider2D _edgeCollider;
+
+        private void Start() => Initialize();
+        private void LateUpdate() => GenerateField();
 
         private void Initialize()
         {
@@ -32,11 +35,8 @@ namespace gishadev.golf.Utilities
             _meshRenderer.material = gameDataSO.FieldMaterial;
         }
 
-        [Button]
         private void GenerateField()
         {
-            Initialize();
-
             var knots = _splineContainer.Splines[0].Knots.ToArray();
             GenerateMesh(knots);
             GenerateEdge(knots);
