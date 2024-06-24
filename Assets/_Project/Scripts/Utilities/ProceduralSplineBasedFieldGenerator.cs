@@ -2,13 +2,13 @@
 using System.Linq;
 using gishadev.golf.Core;
 using mattatz.Triangulation2DSystem;
+using Sirenix.OdinInspector;
 using UnityEngine;
 using UnityEngine.Splines;
 
 namespace gishadev.golf.Utilities
 {
-    [RequireComponent(typeof(SplineContainer), typeof(MeshFilter), typeof(MeshRenderer))]
-    [RequireComponent(typeof(LineRenderer), typeof(EdgeCollider2D))]
+    [RequireComponent(typeof(SplineContainer))]
     [ExecuteInEditMode]
     public class ProceduralSplineBasedFieldGenerator : MonoBehaviour
     {
@@ -20,19 +20,30 @@ namespace gishadev.golf.Utilities
 
         private LineRenderer _lineRenderer;
         private EdgeCollider2D _edgeCollider;
+        private GameObject _fieldObject;
 
         private void Start() => Initialize();
         private void LateUpdate() => GenerateField();
 
+        [Button]
         private void Initialize()
         {
-            _lineRenderer = GetComponent<LineRenderer>();
-            _edgeCollider = GetComponent<EdgeCollider2D>();
             _splineContainer = GetComponent<SplineContainer>();
-            _meshFilter = GetComponent<MeshFilter>();
 
-            _meshRenderer = GetComponent<MeshRenderer>();
+            for (int i = 0; i < transform.childCount; i++)
+                DestroyImmediate(transform.GetChild(i).gameObject);
+            _fieldObject = new GameObject("Field");
+            _fieldObject.transform.SetParent(transform);
+
+            _meshFilter = _fieldObject.AddComponent<MeshFilter>();
+            _meshRenderer = _fieldObject.AddComponent<MeshRenderer>();
+            _edgeCollider = _fieldObject.AddComponent<EdgeCollider2D>();
+            _lineRenderer = _fieldObject.AddComponent<LineRenderer>();
+                
             _meshRenderer.material = gameDataSO.FieldMaterial;
+            _fieldObject.transform.localPosition = Vector3.zero;
+
+            InitializeLines();
         }
 
         private void GenerateField()
@@ -66,13 +77,24 @@ namespace gishadev.golf.Utilities
                 .Select(x => (Vector3) x.Position)
                 .ToArray();
             _lineRenderer.SetPositions(positions);
-            
+
             // loop edge collider, add first point to the end.
             var edgeColliderPoints = positions
                 .Select(x => (Vector2) x)
                 .ToList();
             edgeColliderPoints.Add(edgeColliderPoints[0]);
             _edgeCollider.points = edgeColliderPoints.ToArray();
+        }
+
+        private void InitializeLines()
+        {
+            _lineRenderer.loop = true;
+            _lineRenderer.useWorldSpace = false;
+            _lineRenderer.startWidth = 0.5f;
+            _lineRenderer.endWidth = 0.5f;
+            _lineRenderer.material = gameDataSO.FieldLineMaterial;
+            
+            _edgeCollider.edgeRadius = 0.25f;
         }
     }
 }
