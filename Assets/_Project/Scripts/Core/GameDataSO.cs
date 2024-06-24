@@ -7,6 +7,8 @@ namespace gishadev.golf.Core
     {
         [SerializeField] private float maxLineLength = 3.5f;
         [SerializeField] private float maxPunchForce = 13f;
+
+        [SerializeField] private GameObject holePrefab;
         [SerializeField] private Material fieldMaterial;
         [SerializeField] private Material fieldLineMaterial;
         
@@ -15,5 +17,6 @@ namespace gishadev.golf.Core
         public float MaxPunchForce => maxPunchForce;
         public Material FieldMaterial => fieldMaterial;
         public Material FieldLineMaterial => fieldLineMaterial;
+        public GameObject HolePrefab => holePrefab;
     }
 }

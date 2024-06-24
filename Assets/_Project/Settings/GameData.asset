@@ -14,5 +14,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   maxLineLength: 4
   maxPunchForce: 30
+  holePrefab: {fileID: 1022168845138208920, guid: 2707d2a7ba8af8f43ae9b288cbc5c755, type: 3}
   fieldMaterial: {fileID: 2100000, guid: 977469004d6680549a21edbf95cc5de1, type: 2}
   fieldLineMaterial: {fileID: 10306, guid: 0000000000000000f000000000000000, type: 0}
