@@ -3,6 +3,7 @@ using System.Linq;
 using gishadev.golf.Core;
 using mattatz.Triangulation2DSystem;
 using Sirenix.OdinInspector;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.Splines;
 
@@ -13,7 +14,8 @@ namespace gishadev.golf.Utilities
     public class ProceduralSplineBasedFieldGenerator : MonoBehaviour
     {
         [SerializeField] private GameDataSO gameDataSO;
-
+        [SerializeField] private string meshAssetName = "FieldMesh";
+        
         private SplineContainer _splineContainer;
         private MeshFilter _meshFilter;
         private MeshRenderer _meshRenderer;
@@ -22,6 +24,8 @@ namespace gishadev.golf.Utilities
         private EdgeCollider2D _edgeCollider;
         private GameObject _fieldObject;
 
+        private Mesh _generatedMesh;
+        
         private void Start() => Initialize();
         private void LateUpdate() => GenerateField();
 
@@ -65,10 +69,24 @@ namespace gishadev.golf.Utilities
             Polygon2D polygon = Polygon2D.Contour(points.ToArray());
             Triangulation2D triangulation = new Triangulation2D(polygon, 22.5f);
 
-            Mesh mesh = triangulation.Build();
-            _meshFilter.mesh = mesh;
+            _generatedMesh = triangulation.Build();
+            _meshFilter.mesh = _generatedMesh;
         }
 
+        [Button]
+        private void SaveMesh()
+        {
+#if UNITY_EDITOR
+            string path = $"Assets/_Project/GeneratedMeshes/{meshAssetName}.asset";
+            if (!string.IsNullOrEmpty(path))
+            {
+                AssetDatabase.CreateAsset(_generatedMesh, path);
+                AssetDatabase.SaveAssets();
+            }
+            _meshFilter.mesh = AssetDatabase.LoadAssetAtPath<Mesh>(path);
+#endif
+        }
+        
         private void GenerateEdge(BezierKnot[] knots)
         {
             _lineRenderer.positionCount = knots.Length;
