@@ -6,6 +6,7 @@ using Sirenix.OdinInspector;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Splines;
+using Zenject;
 
 namespace gishadev.golf.Utilities
 {
@@ -13,9 +14,14 @@ namespace gishadev.golf.Utilities
     [ExecuteInEditMode]
     public class ProceduralSplineBasedFieldGenerator : MonoBehaviour
     {
-        [SerializeField] private GameDataSO gameDataSO;
+        [SerializeField] private Material mainMaterial;
+        [SerializeField] private Material edgesMaterial;
+        [SerializeField] private bool isSolid;
+        [Space]
         [SerializeField] private string assetToSaveName = "Field";
 
+        [Inject] private GameDataSO gameDataSO;
+        
         private SplineContainer _splineContainer;
         private MeshFilter _meshFilter;
         private MeshRenderer _meshRenderer;
@@ -23,10 +29,10 @@ namespace gishadev.golf.Utilities
         private LineRenderer _lineRenderer;
         private EdgeCollider2D _edgeCollider;
         private GameObject _fieldObject;
-
         private Mesh _generatedMesh;
-        private string _prefabFolderPath = "Assets/_Project/Prefabs/Fields";
-        private string _meshFolderPath = "Assets/_Project/GeneratedMeshes";
+        
+        private readonly string _prefabFolderPath = "Assets/_Project/Prefabs/Fields";
+        private readonly string _meshFolderPath = "Assets/_Project/GeneratedMeshes";
 
 #if UNITY_EDITOR
         private void Start() => Initialize();
@@ -48,7 +54,7 @@ namespace gishadev.golf.Utilities
             _edgeCollider = _fieldObject.AddComponent<EdgeCollider2D>();
             _lineRenderer = _fieldObject.AddComponent<LineRenderer>();
 
-            _meshRenderer.material = gameDataSO.FieldMaterial;
+            _meshRenderer.material = mainMaterial;
             _fieldObject.transform.localPosition = Vector3.zero;
 
             InitializeLines();
@@ -120,7 +126,7 @@ namespace gishadev.golf.Utilities
             _lineRenderer.useWorldSpace = false;
             _lineRenderer.startWidth = 0.5f;
             _lineRenderer.endWidth = 0.5f;
-            _lineRenderer.material = gameDataSO.FieldLineMaterial;
+            _lineRenderer.material = edgesMaterial;
 
             _edgeCollider.edgeRadius = 0.25f;
         }
