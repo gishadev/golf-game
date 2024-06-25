@@ -12,25 +12,26 @@ namespace gishadev.golf.Utilities
 {
     [RequireComponent(typeof(SplineContainer))]
     [ExecuteInEditMode]
-    public class ProceduralSplineBasedFieldGenerator : MonoBehaviour
+    public class ShapesGenerator : MonoBehaviour
     {
+        [SerializeField] private GameObject shapeObject;
+        [Space]
         [SerializeField] private Material mainMaterial;
         [SerializeField] private Material edgesMaterial;
         [SerializeField] private bool isSolid;
-        [Space]
-        [SerializeField] private string assetToSaveName = "Field";
+        [Space] [SerializeField] private string assetToSaveName = "Shape";
 
         [Inject] private GameDataSO gameDataSO;
-        
+
         private SplineContainer _splineContainer;
         private MeshFilter _meshFilter;
         private MeshRenderer _meshRenderer;
-
         private LineRenderer _lineRenderer;
-        private EdgeCollider2D _edgeCollider;
-        private GameObject _fieldObject;
         private Mesh _generatedMesh;
-        
+
+        private EdgeCollider2D _edgeCollider;
+        private PolygonCollider2D _polygonCollider;
+
         private readonly string _prefabFolderPath = "Assets/_Project/Prefabs/Fields";
         private readonly string _meshFolderPath = "Assets/_Project/GeneratedMeshes";
 
@@ -46,26 +47,94 @@ namespace gishadev.golf.Utilities
 
             for (int i = 0; i < transform.childCount; i++)
                 DestroyImmediate(transform.GetChild(i).gameObject);
-            _fieldObject = new GameObject("Field");
-            _fieldObject.transform.SetParent(transform);
+            shapeObject = new GameObject("Shape");
+            shapeObject.transform.SetParent(transform);
 
-            _meshFilter = _fieldObject.AddComponent<MeshFilter>();
-            _meshRenderer = _fieldObject.AddComponent<MeshRenderer>();
-            _edgeCollider = _fieldObject.AddComponent<EdgeCollider2D>();
-            _lineRenderer = _fieldObject.AddComponent<LineRenderer>();
+            _meshFilter = shapeObject.AddComponent<MeshFilter>();
+            _meshRenderer = shapeObject.AddComponent<MeshRenderer>();
 
             _meshRenderer.material = mainMaterial;
-            _fieldObject.transform.localPosition = Vector3.zero;
+            shapeObject.transform.localPosition = Vector3.zero;
 
-            InitializeLines();
-            PrefabUtility.InstantiatePrefab(gameDataSO.HolePrefab, _fieldObject.transform);
+            if (!isSolid)
+            {
+                _lineRenderer = shapeObject.AddComponent<LineRenderer>();
+                _edgeCollider = shapeObject.AddComponent<EdgeCollider2D>();
+                InitializeLines();
+            }
+            else
+                _polygonCollider = shapeObject.AddComponent<PolygonCollider2D>();
+        }
+
+        [Button]
+        private void AddHole()
+        {
+            PrefabUtility.InstantiatePrefab(gameDataSO.HolePrefab, shapeObject.transform);
         }
 
         private void GenerateField()
         {
             var knots = _splineContainer.Splines[0].Knots.ToArray();
             GenerateMesh(knots);
-            GenerateEdge(knots);
+
+            if (!isSolid)
+                SetEdge(knots);
+            else
+                SetPolygon(knots);
+        }
+
+
+        [Button]
+        private void SaveMesh()
+        {
+            // Saving mesh.
+            string meshPath = $"{_meshFolderPath}/{assetToSaveName}.asset";
+            if (!string.IsNullOrEmpty(meshPath))
+            {
+                AssetDatabase.CreateAsset(_generatedMesh, meshPath);
+                AssetDatabase.SaveAssets();
+            }
+
+            _meshFilter.mesh = AssetDatabase.LoadAssetAtPath<Mesh>(meshPath);
+        }
+        
+        [Button]
+        private void SavePrefab()
+        {
+            // Saving prefab.
+            string prefabPath = $"{_prefabFolderPath}/{assetToSaveName}.prefab";
+            if (shapeObject != null && !string.IsNullOrEmpty(prefabPath))
+                PrefabUtility.SaveAsPrefabAsset(shapeObject, prefabPath);
+        }
+
+        private void SetEdge(BezierKnot[] knots)
+        {
+            _lineRenderer.positionCount = knots.Length;
+
+            var positions = knots
+                .Select(x => (Vector3) x.Position)
+                .ToArray();
+            _lineRenderer.SetPositions(positions);
+
+            // loop edge collider, add first point to the end.
+            var edgeColliderPoints = positions
+                .Select(x => (Vector2) x)
+                .ToList();
+            edgeColliderPoints.Add(edgeColliderPoints[0]);
+            _edgeCollider.points = edgeColliderPoints.ToArray();
+        }
+
+        private void SetPolygon(BezierKnot[] knots)
+        {
+            var positions = knots
+                .Select(x => (Vector3) x.Position)
+                .ToArray();
+            
+            var polygonColliderPoints = positions
+                .Select(x => (Vector2) x)
+                .ToList();
+            polygonColliderPoints.Add(polygonColliderPoints[0]);
+            _polygonCollider.points = polygonColliderPoints.ToArray();
         }
 
         private void GenerateMesh(BezierKnot[] knots)
@@ -84,41 +153,6 @@ namespace gishadev.golf.Utilities
             _meshFilter.mesh = _generatedMesh;
         }
 
-        [Button]
-        private void Save()
-        {
-            // Saving mesh.
-            string meshPath = $"{_meshFolderPath}/{assetToSaveName}.asset";
-            if (!string.IsNullOrEmpty(meshPath))
-            {
-                AssetDatabase.CreateAsset(_generatedMesh, meshPath);
-                AssetDatabase.SaveAssets();
-            }
-
-            _meshFilter.mesh = AssetDatabase.LoadAssetAtPath<Mesh>(meshPath);
-
-            // Saving prefab.
-            string prefabPath = $"{_prefabFolderPath}/{assetToSaveName}.prefab";
-            if (_fieldObject != null && !string.IsNullOrEmpty(prefabPath))
-                PrefabUtility.SaveAsPrefabAsset(_fieldObject, prefabPath);
-        }
-
-        private void GenerateEdge(BezierKnot[] knots)
-        {
-            _lineRenderer.positionCount = knots.Length;
-
-            var positions = knots
-                .Select(x => (Vector3) x.Position)
-                .ToArray();
-            _lineRenderer.SetPositions(positions);
-
-            // loop edge collider, add first point to the end.
-            var edgeColliderPoints = positions
-                .Select(x => (Vector2) x)
-                .ToList();
-            edgeColliderPoints.Add(edgeColliderPoints[0]);
-            _edgeCollider.points = edgeColliderPoints.ToArray();
-        }
 
         private void InitializeLines()
         {
