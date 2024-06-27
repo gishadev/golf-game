@@ -15,4 +15,5 @@ MonoBehaviour:
   maxLineLength: 4
   maxPunchForce: 30
   holePrefab: {fileID: 1022168845138208920, guid: 2707d2a7ba8af8f43ae9b288cbc5c755, type: 3}
-  ballSpawnpointPrefab: {fileID: 3351944450089292028, guid: 0e635e27bde3bdf4d8a6ecafbd480afd, type: 3}
+  golfBallSpawnpointPrefab: {fileID: 3351944450089292028, guid: 0e635e27bde3bdf4d8a6ecafbd480afd, type: 3}
+  playerContainerPrefab: {fileID: 6907007583571806652, guid: 8116879e376c6ea4eb0d3867fa8db538, type: 3}

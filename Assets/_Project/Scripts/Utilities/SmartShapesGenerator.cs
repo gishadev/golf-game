@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using gishadev.golf.Core;
+using gishadev.golf.Gameplay;
 using mattatz.Triangulation2DSystem;
 using Sirenix.OdinInspector;
 using UnityEditor;
@@ -65,6 +66,7 @@ namespace gishadev.golf.Utilities
             {
                 _lineRenderer = shapeObject.AddComponent<LineRenderer>();
                 _edgeCollider = shapeObject.AddComponent<EdgeCollider2D>();
+                shapeObject.AddComponent<GolfField>();
                 InitializeLines();
             }
             else
@@ -72,16 +74,12 @@ namespace gishadev.golf.Utilities
         }
 
         [Button(ButtonSizes.Large), HorizontalGroup("AddButtons")]
-        private void AddHole()
-        {
-            PrefabUtility.InstantiatePrefab(gameDataSO.HolePrefab, shapeObject.transform);
-        }
+        private void AddHole() 
+            => PrefabUtility.InstantiatePrefab(gameDataSO.HolePrefab, shapeObject.transform);
 
         [Button(ButtonSizes.Large), HorizontalGroup("AddButtons")]
-        private void AddSpawnpoint()
-        {
-            PrefabUtility.InstantiatePrefab(gameDataSO.BallSpawnpointPrefab, shapeObject.transform);
-        }
+        private void AddSpawnpoint() 
+            => PrefabUtility.InstantiatePrefab(gameDataSO.GolfBallSpawnpointPrefab, shapeObject.transform);
 
         [Button(ButtonSizes.Large), HorizontalGroup("SaveButtons")]
         private void SaveMesh()
