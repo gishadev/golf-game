@@ -33,6 +33,7 @@ namespace gishadev.golf.Utilities
 
         private readonly string _prefabFolderPath = "Assets/_Project/Prefabs/Fields";
         private readonly string _meshFolderPath = "Assets/_Project/GeneratedMeshes";
+        private readonly string _gameDataPath = "Assets/_Project/Settings/GameData.asset";
 
 #if UNITY_EDITOR
         private void Start() => Initialize();
@@ -42,7 +43,7 @@ namespace gishadev.golf.Utilities
         private static void CreateNewAsset() => new GameObject("SmartShape").AddComponent<SmartShapesGenerator>();
 #endif
 
-        [Button(ButtonSizes.Large)]
+        [Button(ButtonSizes.Large), GUIColor("yellow")]
         private void Initialize()
         {
             _splineContainer = GetComponent<SplineContainer>();
@@ -58,6 +59,8 @@ namespace gishadev.golf.Utilities
             _meshRenderer.material = mainMaterial;
             shapeObject.transform.localPosition = Vector3.zero;
 
+            gameDataSO = AssetDatabase.LoadAssetAtPath<GameDataSO>(_gameDataPath);
+
             if (!isSolid)
             {
                 _lineRenderer = shapeObject.AddComponent<LineRenderer>();
@@ -68,18 +71,19 @@ namespace gishadev.golf.Utilities
                 _polygonCollider = shapeObject.AddComponent<PolygonCollider2D>();
         }
 
-        [Button, HorizontalGroup("AddButtons")]
+        [Button(ButtonSizes.Large), HorizontalGroup("AddButtons")]
         private void AddHole()
         {
             PrefabUtility.InstantiatePrefab(gameDataSO.HolePrefab, shapeObject.transform);
         }
 
-        [Button, HorizontalGroup("AddButtons")]
+        [Button(ButtonSizes.Large), HorizontalGroup("AddButtons")]
         private void AddSpawnpoint()
         {
+            PrefabUtility.InstantiatePrefab(gameDataSO.BallSpawnpointPrefab, shapeObject.transform);
         }
 
-        [Button, HorizontalGroup("SaveButtons")]
+        [Button(ButtonSizes.Large), HorizontalGroup("SaveButtons")]
         private void SaveMesh()
         {
             // Saving mesh.
@@ -93,9 +97,12 @@ namespace gishadev.golf.Utilities
             _meshFilter.mesh = AssetDatabase.LoadAssetAtPath<Mesh>(meshPath);
         }
 
-        [Button, HorizontalGroup("SaveButtons")]
+        [Button(ButtonSizes.Large), HorizontalGroup("SaveButtons")]
         private void SavePrefab()
         {
+            string meshPath = $"{_meshFolderPath}/{assetToSaveName}.asset";
+            _meshFilter.mesh = AssetDatabase.LoadAssetAtPath<Mesh>(meshPath);
+
             // Saving prefab.
             string prefabPath = $"{_prefabFolderPath}/{assetToSaveName}.prefab";
             if (shapeObject != null && !string.IsNullOrEmpty(prefabPath))
