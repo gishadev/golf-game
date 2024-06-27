@@ -12,7 +12,7 @@ namespace gishadev.golf.Utilities
 {
     [RequireComponent(typeof(SplineContainer))]
     [ExecuteInEditMode]
-    public class ShapesGenerator : MonoBehaviour
+    public class SmartShapesGenerator : MonoBehaviour
     {
         [SerializeField] private GameObject shapeObject;
         [Space] [SerializeField] private Material mainMaterial;
@@ -37,6 +37,9 @@ namespace gishadev.golf.Utilities
 #if UNITY_EDITOR
         private void Start() => Initialize();
         private void LateUpdate() => GenerateShape();
+
+        [MenuItem("GameObject/2D Object/SmartShape")]
+        private static void CreateNewAsset() => new GameObject("SmartShape").AddComponent<SmartShapesGenerator>();
 #endif
 
         [Button(ButtonSizes.Large)]
@@ -103,18 +106,18 @@ namespace gishadev.golf.Utilities
         {
             if (_splineContainer.Splines.Count == 0)
                 return;
-            
+
             var knots = _splineContainer.Splines[0].Knots.ToArray();
             if (knots.Length == 0)
                 return;
-            
+
             GenerateMesh(knots);
             if (!isSolid)
                 SetEdge(knots);
             else
                 SetPolygon(knots);
         }
-        
+
         private void SetEdge(BezierKnot[] knots)
         {
             _lineRenderer.positionCount = knots.Length;
