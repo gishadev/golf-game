@@ -15,8 +15,7 @@ namespace gishadev.golf.Utilities
     public class ShapesGenerator : MonoBehaviour
     {
         [SerializeField] private GameObject shapeObject;
-        [Space]
-        [SerializeField] private Material mainMaterial;
+        [Space] [SerializeField] private Material mainMaterial;
         [SerializeField] private Material edgesMaterial;
         [SerializeField] private bool isSolid;
         [Space] [SerializeField] private string assetToSaveName = "Shape";
@@ -37,10 +36,10 @@ namespace gishadev.golf.Utilities
 
 #if UNITY_EDITOR
         private void Start() => Initialize();
-        private void LateUpdate() => GenerateField();
+        private void LateUpdate() => GenerateShape();
 #endif
 
-        [Button]
+        [Button(ButtonSizes.Large)]
         private void Initialize()
         {
             _splineContainer = GetComponent<SplineContainer>();
@@ -66,25 +65,18 @@ namespace gishadev.golf.Utilities
                 _polygonCollider = shapeObject.AddComponent<PolygonCollider2D>();
         }
 
-        [Button]
+        [Button, HorizontalGroup("AddButtons")]
         private void AddHole()
         {
             PrefabUtility.InstantiatePrefab(gameDataSO.HolePrefab, shapeObject.transform);
         }
 
-        private void GenerateField()
+        [Button, HorizontalGroup("AddButtons")]
+        private void AddSpawnpoint()
         {
-            var knots = _splineContainer.Splines[0].Knots.ToArray();
-            GenerateMesh(knots);
-
-            if (!isSolid)
-                SetEdge(knots);
-            else
-                SetPolygon(knots);
         }
 
-
-        [Button]
+        [Button, HorizontalGroup("SaveButtons")]
         private void SaveMesh()
         {
             // Saving mesh.
@@ -97,8 +89,8 @@ namespace gishadev.golf.Utilities
 
             _meshFilter.mesh = AssetDatabase.LoadAssetAtPath<Mesh>(meshPath);
         }
-        
-        [Button]
+
+        [Button, HorizontalGroup("SaveButtons")]
         private void SavePrefab()
         {
             // Saving prefab.
@@ -107,6 +99,22 @@ namespace gishadev.golf.Utilities
                 PrefabUtility.SaveAsPrefabAsset(shapeObject, prefabPath);
         }
 
+        private void GenerateShape()
+        {
+            if (_splineContainer.Splines.Count == 0)
+                return;
+            
+            var knots = _splineContainer.Splines[0].Knots.ToArray();
+            if (knots.Length == 0)
+                return;
+            
+            GenerateMesh(knots);
+            if (!isSolid)
+                SetEdge(knots);
+            else
+                SetPolygon(knots);
+        }
+        
         private void SetEdge(BezierKnot[] knots)
         {
             _lineRenderer.positionCount = knots.Length;
@@ -129,7 +137,7 @@ namespace gishadev.golf.Utilities
             var positions = knots
                 .Select(x => (Vector3) x.Position)
                 .ToArray();
-            
+
             var polygonColliderPoints = positions
                 .Select(x => (Vector2) x)
                 .ToList();
