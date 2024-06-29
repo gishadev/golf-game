@@ -33,6 +33,7 @@ namespace gishadev.golf.Gameplay
             _cam = Camera.main;
 
             _lr = GetComponentInChildren<LineRenderer>();
+            _lr.enabled = false;
             _input = new CustomInput();
         }
 

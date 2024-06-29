@@ -23,7 +23,7 @@ namespace gishadev.golf.Core
 
         public void Initialize()
         {
-            Hole.BallEnteredHole += OnBallEnteredHole;
+            GolfHole.BallEnteredHole += OnBallEnteredHole;
             GolfClubController.ClubPunch += OnClubPunch;
             
             CurrentGolfField = Object.FindObjectOfType<GolfField>();
@@ -33,7 +33,7 @@ namespace gishadev.golf.Core
 
         public void Dispose()
         {
-            Hole.BallEnteredHole -= OnBallEnteredHole;
+            GolfHole.BallEnteredHole -= OnBallEnteredHole;
             GolfClubController.ClubPunch -= OnClubPunch;
         }
 

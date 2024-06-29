@@ -12,7 +12,6 @@ namespace gishadev.golf.Core
         [SerializeField] private GameObject golfBallSpawnpointPrefab;
         [SerializeField] private GameObject playerContainerPrefab;
         
-        
         public float MaxLineLength => maxLineLength;
         public float MaxPunchForce => maxPunchForce;
         public GameObject HolePrefab => holePrefab;

@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace gishadev.golf.Gameplay
 {
-    public class Hole : MonoBehaviour
+    public class GolfHole : MonoBehaviour
     {
         public static Action<GolfBall> BallEnteredHole;
         
@@ -20,10 +20,12 @@ namespace gishadev.golf.Gameplay
         private void InitBallInHoleAnimation(GolfBall ball)
         {
             ball.ChangeBodyType(RigidbodyType2D.Kinematic);
-            ball.transform.DOMove(transform.position, 0.5f).OnComplete(() =>
-            {
-                ball.gameObject.SetActive(false);
-            });
+            
+            var sequence = DOTween.Sequence();
+            sequence.Append(ball.transform.DOMove(transform.position, 0.5f));
+            sequence.Append(ball.transform.DOScale(Vector3.zero, 0.5f));
+            
+            sequence.OnComplete(() => ball.gameObject.SetActive(false));
         }
     }
 }

@@ -17,7 +17,13 @@ namespace gishadev.golf.Gameplay
                 _rb.velocity = Vector2.zero;
         }
 
-        public void ChangeBodyType(RigidbodyType2D bodyType) => _rb.bodyType = bodyType;
+        public void ChangeBodyType(RigidbodyType2D bodyType)
+        {
+            _rb.bodyType = bodyType;
+            if (bodyType is RigidbodyType2D.Kinematic)
+                _rb.velocity = Vector2.zero;
+        }
+
         public void AddImpulseForce(Vector2 force) => _rb.AddForce(force, ForceMode2D.Impulse);
     }
 }
