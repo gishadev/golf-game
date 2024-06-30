@@ -14,7 +14,7 @@ namespace gishadev.golf.Gameplay
         [Inject] private IGameManager _gameManager;
 
         public static event Action ClubDown;
-        public static event Action ClubPunch;
+        public static event Action<GolfBall> ClubPunch;
         public static event Action ClubUp;
 
         private GolfBall SelectedGolfBall => _gameManager.CurrentTurnPlayer.GolfPlayerContainer.GolfBall;
@@ -80,7 +80,7 @@ namespace gishadev.golf.Gameplay
             SelectedGolfBall.AddImpulseForce(_punchDirection * (_punchForcePercentage * _gameDataSO.MaxPunchForce));
 
             ClubUp?.Invoke();
-            ClubPunch?.Invoke();
+            ClubPunch?.Invoke(SelectedGolfBall);
         }
 
         private void OnClubDown(InputAction.CallbackContext value)

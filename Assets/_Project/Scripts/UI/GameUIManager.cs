@@ -28,7 +28,7 @@ namespace gishadev.golf.UI
         }
 
         private void OnPlayerSwitched(GolfPlayer golfPlayer) => playerTurnText.text = $"Player{golfPlayer.Index + 1}'s Turn";
-        private void OnClubPunch()
+        private void OnClubPunch(GolfBall golfBall)
         {
             playerTurnText.text = string.Empty;
         }

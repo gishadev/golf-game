@@ -31,7 +31,7 @@ namespace gishadev.golf.Gameplay
         {
             GolfClubController.ClubUp -= OnClubUp;
             GolfClubController.ClubDown -= OnClubDown;
-            GameManager.PlayerSwitched += OnPlayerSwitched;
+            GameManager.PlayerSwitched -= OnPlayerSwitched;
         }
 
         private void OnClubUp()

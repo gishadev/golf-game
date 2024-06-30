@@ -35,15 +35,19 @@ namespace gishadev.golf.Core
         {
             GolfHole.BallScoredHole -= OnBallEnteredHole;
             GolfClubController.ClubPunch -= OnClubPunch;
+            
+            foreach (var p in Players)
+                p.UnsubscribeEvents();
         }
-
-
 
         private void SetupGolfPlayers()
         {
             Players = new GolfPlayer[_playerContainers.Count];
-            for (var i = 0; i < _playerContainers.Count; i++)
+            for (var i = 0; i < Players.Length; i++)
+            {
                 Players[i] = new GolfPlayer(i, _playerContainers[i]);
+                Players[i].SubscribeEvents();
+            }
 
             SwitchPlayer(Players[0]);
         }
@@ -70,8 +74,9 @@ namespace gishadev.golf.Core
             if (!CurrentTurnPlayer.GolfPlayerContainer.gameObject.activeSelf)
                 CurrentTurnPlayer.GolfPlayerContainer.gameObject.SetActive(true);
         }
-        
-        private void OnClubPunch() => CurrentTurnPlayer.GolfPlayerContainer.GolfBall.OnBallStopped += OnBallStopped;
+
+        private void OnClubPunch(GolfBall golfBall) =>
+            CurrentTurnPlayer.GolfPlayerContainer.GolfBall.OnBallStopped += OnBallStopped;
 
         private void OnBallStopped()
         {
@@ -81,12 +86,12 @@ namespace gishadev.golf.Core
 
             if (notScoredPlayers.Length == 0)
                 return;
-            
+
             var currentPlayerIndex = Array.IndexOf(notScoredPlayers, CurrentTurnPlayer);
             var nextPlayerIndex = currentPlayerIndex + 1;
             if (nextPlayerIndex >= notScoredPlayers.Length)
                 nextPlayerIndex = 0;
-            
+
             SwitchPlayer(notScoredPlayers[nextPlayerIndex]);
             CurrentTurnPlayer.GolfPlayerContainer.GolfBall.OnBallStopped -= OnBallStopped;
         }

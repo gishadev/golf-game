@@ -12,7 +12,11 @@ namespace gishadev.golf.Gameplay
 
         private Rigidbody2D _rb;
         private void Awake() => _rb = GetComponent<Rigidbody2D>();
-        private void Start() => ChangeBodyType(RigidbodyType2D.Dynamic);
+        private void Start()
+        {
+            ResetScore();
+            ChangeBodyType(RigidbodyType2D.Dynamic);
+        }
 
         private void FixedUpdate()
         {
@@ -39,14 +43,7 @@ namespace gishadev.golf.Gameplay
 
         public void AddImpulseForce(Vector2 force) => _rb.AddForce(force, ForceMode2D.Impulse);
 
-        public void Score()
-        {
-            IsScored = true;
-        }
-
-        public void ResetScore()
-        {
-            IsScored = false;
-        }
+        public void Score() => IsScored = true;
+        public void ResetScore() => IsScored = false;
     }
 }
