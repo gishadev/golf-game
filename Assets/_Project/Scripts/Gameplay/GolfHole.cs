@@ -6,14 +6,15 @@ namespace gishadev.golf.Gameplay
 {
     public class GolfHole : MonoBehaviour
     {
-        public static Action<GolfBall> BallEnteredHole;
+        public static Action<GolfBall> BallScoredHole;
         
         private void OnTriggerEnter2D(Collider2D other)
         {
             if (other.TryGetComponent(out GolfBall golfBall))
             {
                 InitBallInHoleAnimation(golfBall);
-                BallEnteredHole?.Invoke(golfBall);
+                golfBall.Score();
+                BallScoredHole?.Invoke(golfBall);
             }
         }
         

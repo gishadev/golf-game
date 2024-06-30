@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Cysharp.Threading.Tasks;
 using gishadev.golf.Gameplay;
 using UnityEngine;
@@ -22,7 +23,7 @@ namespace gishadev.golf.Core
 
         public void Initialize()
         {
-            GolfHole.BallEnteredHole += OnBallEnteredHole;
+            GolfHole.BallScoredHole += OnBallEnteredHole;
             GolfClubController.ClubPunch += OnClubPunch;
 
             CurrentGolfField = Object.FindObjectOfType<GolfField>();
@@ -32,7 +33,7 @@ namespace gishadev.golf.Core
 
         public void Dispose()
         {
-            GolfHole.BallEnteredHole -= OnBallEnteredHole;
+            GolfHole.BallScoredHole -= OnBallEnteredHole;
             GolfClubController.ClubPunch -= OnClubPunch;
         }
 
@@ -74,12 +75,19 @@ namespace gishadev.golf.Core
 
         private void OnBallStopped()
         {
-            var currentPlayerIndex = Array.IndexOf(Players, CurrentTurnPlayer);
+            var notScoredPlayers = Players
+                .Where(x => !x.GolfPlayerContainer.GolfBall.IsScored)
+                .ToArray();
+
+            if (notScoredPlayers.Length == 0)
+                return;
+            
+            var currentPlayerIndex = Array.IndexOf(notScoredPlayers, CurrentTurnPlayer);
             var nextPlayerIndex = currentPlayerIndex + 1;
-            if (nextPlayerIndex >= Players.Length)
+            if (nextPlayerIndex >= notScoredPlayers.Length)
                 nextPlayerIndex = 0;
             
-            SwitchPlayer(Players[nextPlayerIndex]);
+            SwitchPlayer(notScoredPlayers[nextPlayerIndex]);
             CurrentTurnPlayer.GolfPlayerContainer.GolfBall.OnBallStopped -= OnBallStopped;
         }
 

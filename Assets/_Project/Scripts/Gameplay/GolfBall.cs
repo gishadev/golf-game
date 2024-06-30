@@ -6,6 +6,7 @@ namespace gishadev.golf.Gameplay
     [RequireComponent(typeof(Rigidbody2D))]
     public class GolfBall : MonoBehaviour
     {
+        public bool IsScored { get; private set; }
         public event Action OnBallStopped;
         public Vector2 Velocity => _rb.velocity;
 
@@ -37,5 +38,15 @@ namespace gishadev.golf.Gameplay
         }
 
         public void AddImpulseForce(Vector2 force) => _rb.AddForce(force, ForceMode2D.Impulse);
+
+        public void Score()
+        {
+            IsScored = true;
+        }
+
+        public void ResetScore()
+        {
+            IsScored = false;
+        }
     }
 }
