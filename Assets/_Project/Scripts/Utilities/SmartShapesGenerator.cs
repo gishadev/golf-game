@@ -19,6 +19,8 @@ namespace gishadev.golf.Utilities
         [Space] [SerializeField] private Material mainMaterial;
         [SerializeField] private Material edgesMaterial;
         [SerializeField] private bool isSolid;
+        [SerializeField] private int bezierKnotSteps = 20;
+
         [Space] [SerializeField] private string assetToSaveName = "Shape";
 
         [Inject] private GameDataSO gameDataSO;
@@ -38,7 +40,8 @@ namespace gishadev.golf.Utilities
 
 #if UNITY_EDITOR
         private void Start() => Initialize();
-        private void LateUpdate() => GenerateShape();
+
+        // private void LateUpdate() => GenerateShape();
 
         [MenuItem("GameObject/2D Object/SmartShape")]
         private static void CreateNewAsset() => new GameObject("SmartShape").AddComponent<SmartShapesGenerator>();
@@ -74,11 +77,11 @@ namespace gishadev.golf.Utilities
         }
 
         [Button(ButtonSizes.Large), HorizontalGroup("AddButtons")]
-        private void AddHole() 
+        private void AddHole()
             => PrefabUtility.InstantiatePrefab(gameDataSO.HolePrefab, shapeObject.transform);
 
         [Button(ButtonSizes.Large), HorizontalGroup("AddButtons")]
-        private void AddSpawnpoint() 
+        private void AddSpawnpoint()
             => PrefabUtility.InstantiatePrefab(gameDataSO.GolfBallSpawnpointPrefab, shapeObject.transform);
 
         [Button(ButtonSizes.Large), HorizontalGroup("SaveButtons")]
@@ -107,6 +110,7 @@ namespace gishadev.golf.Utilities
                 PrefabUtility.SaveAsPrefabAsset(shapeObject, prefabPath);
         }
 
+        [Button("Force Generate", ButtonSizes.Medium), GUIColor("red")]
         private void GenerateShape()
         {
             if (_splineContainer.Splines.Count == 0)
@@ -155,20 +159,42 @@ namespace gishadev.golf.Utilities
 
         private void GenerateMesh(BezierKnot[] knots)
         {
-            var vertices = knots
-                .Select(x => (Vector3) x.Position)
-                .ToArray();
+            var closedKnots = new List<BezierKnot>(knots);
+            closedKnots.Add(knots[0]);
+            
+            var points = new List<Vector2>();
 
-            List<Vector2> points = new List<Vector2>();
-            points.AddRange(vertices.Select(x => (Vector2) x));
+            for (int i = 0; i < closedKnots.Count; i++)
+            {
+                if (IsLinear(closedKnots[i]))
+                    points.Add((Vector3) closedKnots[i].Position);
+                else
+                    for (float t = 0f; t <= 1f; t += 1f / bezierKnotSteps)
+                        points.Add(EvaluateSplinePosition(i - 1, i, t));
+            }
 
-            Polygon2D polygon = Polygon2D.Contour(points.ToArray());
-            Triangulation2D triangulation = new Triangulation2D(polygon, 22.5f);
+            for (int i = 1; i < points.Count; i++)
+            {
+                Debug.DrawLine(points[i - 1] + Vector2.up * 15f, points[i] + Vector2.up * 15f, Color.red, 5f);
+            }
 
-            _generatedMesh = triangulation.Build();
+            // Polygon2D polygon = Polygon2D.Contour(points.ToArray());
+            // Triangulation2D triangulation = new Triangulation2D(polygon, 22.5f);
+            // _generatedMesh = triangulation.Build();
+            
             _meshFilter.mesh = _generatedMesh;
         }
 
+        private Vector3 EvaluateSplinePosition(int previousIndex, int nextIndex, float t)
+        {
+            var spline = _splineContainer.Splines[0];
+            var previousT = spline.ConvertIndexUnit(previousIndex, PathIndexUnit.Knot, PathIndexUnit.Normalized);
+            var nextT = spline.ConvertIndexUnit(nextIndex, PathIndexUnit.Knot, PathIndexUnit.Normalized);
+
+            var mappedT = t.MapValue(0f, 1f, previousT, nextT);
+            var position = spline.EvaluatePosition(mappedT);
+            return position;
+        }
 
         private void InitializeLines()
         {
@@ -179,6 +205,11 @@ namespace gishadev.golf.Utilities
             _lineRenderer.material = edgesMaterial;
 
             _edgeCollider.edgeRadius = 0.25f;
+        }
+
+        private bool IsLinear(BezierKnot knot)
+        {
+            return ((Vector3) knot.TangentIn).magnitude + ((Vector3) knot.TangentOut).magnitude <= 0;
         }
     }
 }
