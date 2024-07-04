@@ -120,45 +120,6 @@ namespace gishadev.golf.Utilities
             if (knots.Length == 0)
                 return;
 
-            GenerateMesh(knots);
-            if (!isSolid)
-                SetEdge(knots);
-            else
-                SetPolygon(knots);
-        }
-
-        private void SetEdge(BezierKnot[] knots)
-        {
-            _lineRenderer.positionCount = knots.Length;
-
-            var positions = knots
-                .Select(x => (Vector3) x.Position)
-                .ToArray();
-            _lineRenderer.SetPositions(positions);
-
-            // loop edge collider, add first point to the end.
-            var edgeColliderPoints = positions
-                .Select(x => (Vector2) x)
-                .ToList();
-            edgeColliderPoints.Add(edgeColliderPoints[0]);
-            _edgeCollider.points = edgeColliderPoints.ToArray();
-        }
-
-        private void SetPolygon(BezierKnot[] knots)
-        {
-            var positions = knots
-                .Select(x => (Vector3) x.Position)
-                .ToArray();
-
-            var polygonColliderPoints = positions
-                .Select(x => (Vector2) x)
-                .ToList();
-            polygonColliderPoints.Add(polygonColliderPoints[0]);
-            _polygonCollider.points = polygonColliderPoints.ToArray();
-        }
-
-        private void GenerateMesh(BezierKnot[] knots)
-        {
             var closedKnots = new List<BezierKnot>(knots);
             closedKnots.Add(knots[0]);
             
@@ -172,15 +133,41 @@ namespace gishadev.golf.Utilities
                     for (float t = 0f; t <= 1f; t += 1f / bezierKnotSteps)
                         points.Add(EvaluateSplinePosition(i - 1, i, t));
             }
+            
+            GenerateMesh(points);
+            if (!isSolid)
+                SetEdge(points);
+            else
+                SetPolygon(points);
+        }
 
-            for (int i = 1; i < points.Count; i++)
+        private void SetEdge(List<Vector2> positions)
+        {
+            _lineRenderer.positionCount = positions.Count();
+            _lineRenderer.SetPositions(positions.Select(x => (Vector3)x).ToArray());
+
+            _edgeCollider.points = positions.ToArray();
+        }
+
+        private void SetPolygon(List<Vector2> positions)
+        {
+            var polygonColliderPoints = positions
+                .Select(x => x)
+                .ToList();
+            polygonColliderPoints.Add(polygonColliderPoints[0]);
+            _polygonCollider.points = polygonColliderPoints.ToArray();
+        }
+
+        private void GenerateMesh(List<Vector2> positions)
+        {
+            for (int i = 1; i < positions.Count(); i++)
             {
-                Debug.DrawLine(points[i - 1] + Vector2.up * 15f, points[i] + Vector2.up * 15f, Color.red, 5f);
+                Debug.DrawLine(positions[i - 1] + Vector2.up * 15f, positions[i] + Vector2.up * 15f, Color.red, 5f);
             }
 
-            // Polygon2D polygon = Polygon2D.Contour(points.ToArray());
-            // Triangulation2D triangulation = new Triangulation2D(polygon, 22.5f);
-            // _generatedMesh = triangulation.Build();
+            Polygon2D polygon = Polygon2D.Contour(positions.ToArray());
+            Triangulation2D triangulation = new Triangulation2D(polygon, 22.5f);
+            _generatedMesh = triangulation.Build();
             
             _meshFilter.mesh = _generatedMesh;
         }
