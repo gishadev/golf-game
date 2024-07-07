@@ -41,7 +41,7 @@ namespace gishadev.golf.Utilities
 #if UNITY_EDITOR
         private void Start() => Initialize();
 
-        // private void LateUpdate() => GenerateShape();
+        private void LateUpdate() => GenerateShape();
 
         [MenuItem("GameObject/2D Object/SmartShape")]
         private static void CreateNewAsset() => new GameObject("SmartShape").AddComponent<SmartShapesGenerator>();
@@ -122,18 +122,18 @@ namespace gishadev.golf.Utilities
 
             var closedKnots = new List<BezierKnot>(knots);
             closedKnots.Add(knots[0]);
-            
+
             var points = new List<Vector2>();
 
             for (int i = 0; i < closedKnots.Count; i++)
             {
                 if (IsLinear(closedKnots[i]))
                     points.Add((Vector3) closedKnots[i].Position);
-                else
-                    for (float t = 0f; t <= 1f; t += 1f / bezierKnotSteps)
-                        points.Add(EvaluateSplinePosition(i - 1, i, t));
+                // else
+                //     for (float t = 0f; t <= 1f; t += 1f / bezierKnotSteps)
+                //         points.Add(EvaluateSplinePosition(i - 1, i, t));
             }
-            
+
             GenerateMesh(points);
             if (!isSolid)
                 SetEdge(points);
@@ -144,7 +144,7 @@ namespace gishadev.golf.Utilities
         private void SetEdge(List<Vector2> positions)
         {
             _lineRenderer.positionCount = positions.Count();
-            _lineRenderer.SetPositions(positions.Select(x => (Vector3)x).ToArray());
+            _lineRenderer.SetPositions(positions.Select(x => (Vector3) x).ToArray());
 
             _edgeCollider.points = positions.ToArray();
         }
@@ -160,15 +160,15 @@ namespace gishadev.golf.Utilities
 
         private void GenerateMesh(List<Vector2> positions)
         {
-            for (int i = 1; i < positions.Count(); i++)
-            {
-                Debug.DrawLine(positions[i - 1] + Vector2.up * 15f, positions[i] + Vector2.up * 15f, Color.red, 5f);
-            }
+            // for (int i = 1; i < positions.Count(); i++)
+            // {
+            //     Debug.DrawLine(positions[i - 1] + Vector2.up * 15f, positions[i] + Vector2.up * 15f, Color.red, 5f);
+            // }
 
             Polygon2D polygon = Polygon2D.Contour(positions.ToArray());
             Triangulation2D triangulation = new Triangulation2D(polygon, 22.5f);
             _generatedMesh = triangulation.Build();
-            
+
             _meshFilter.mesh = _generatedMesh;
         }
 
