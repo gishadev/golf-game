@@ -10,6 +10,9 @@ namespace gishadev.golf.Gameplay
 {
     public class GolfClubController : MonoBehaviour
     {
+        [SerializeField] private LineRenderer forceLR;
+        [SerializeField] private LineRenderer trajectoryLR;
+
         [Inject] private GameDataSO _gameDataSO;
         [Inject] private IGameManager _gameManager;
 
@@ -23,7 +26,6 @@ namespace gishadev.golf.Gameplay
         private float _punchForcePercentage;
 
         private CustomInput _input;
-        private LineRenderer _lr;
         private bool _isClubDown;
         private Camera _cam;
         private Vector2 _clubScreenPos;
@@ -32,8 +34,8 @@ namespace gishadev.golf.Gameplay
         {
             _cam = Camera.main;
 
-            _lr = GetComponentInChildren<LineRenderer>();
-            _lr.enabled = false;
+            forceLR.enabled = false;
+            trajectoryLR.enabled = false;
             _input = new CustomInput();
         }
 
@@ -45,15 +47,20 @@ namespace gishadev.golf.Gameplay
                 return;
 
             var worldClubPos = _cam.ScreenToWorldPoint(_clubScreenPos);
-            var punchVector =  SelectedGolfBall.transform.position - worldClubPos;
+            var punchVector = SelectedGolfBall.transform.position - worldClubPos;
             _punchDirection = punchVector.normalized;
-            _punchForcePercentage = Mathf.Min(punchVector.magnitude, _gameDataSO.MaxLineLength) /
-                                    _gameDataSO.MaxLineLength;
+            _punchForcePercentage = Mathf.Min(punchVector.magnitude, _gameDataSO.MaxForceLineLength) /
+                                    _gameDataSO.MaxForceLineLength;
 
-            _lr.SetPosition(0, SelectedGolfBall.transform.position);
-            _lr.SetPosition(1,
+            forceLR.SetPosition(0, SelectedGolfBall.transform.position);
+            forceLR.SetPosition(1,
                 (Vector2) SelectedGolfBall.transform.position -
-                _punchDirection * (_punchForcePercentage * _gameDataSO.MaxLineLength));
+                _punchDirection * (_punchForcePercentage * _gameDataSO.MaxForceLineLength));
+
+            trajectoryLR.SetPosition(0, SelectedGolfBall.transform.position);
+            trajectoryLR.SetPosition(1,
+                (Vector2) SelectedGolfBall.transform.position +
+                _punchDirection * (_punchForcePercentage * _gameDataSO.MaxTrajectoryLineLength));
         }
 
         private void OnEnable()
@@ -75,7 +82,8 @@ namespace gishadev.golf.Gameplay
             if (SelectedGolfBall.Velocity.magnitude > 0 || !_isClubDown)
                 return;
 
-            _lr.enabled = false;
+            forceLR.enabled = false;
+            trajectoryLR.enabled = false;
             _isClubDown = false;
             SelectedGolfBall.AddImpulseForce(_punchDirection * (_punchForcePercentage * _gameDataSO.MaxPunchForce));
 
@@ -96,7 +104,8 @@ namespace gishadev.golf.Gameplay
             _punchDirection = Vector2.zero;
             _punchForcePercentage = 0f;
 
-            _lr.enabled = true;
+            forceLR.enabled = true;
+            trajectoryLR.enabled = true;
             _isClubDown = true;
 
             ClubDown?.Invoke();

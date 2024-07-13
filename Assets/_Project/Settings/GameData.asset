@@ -12,7 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b26e94d13e6049f5b9373af468631077, type: 3}
   m_Name: GameData
   m_EditorClassIdentifier: 
-  maxLineLength: 4
+  maxForceLineLength: 6
+  maxTrajectoryLineLength: 4
   maxPunchForce: 30
   holePrefab: {fileID: 1022168845138208920, guid: 2707d2a7ba8af8f43ae9b288cbc5c755, type: 3}
   golfBallSpawnpointPrefab: {fileID: 3351944450089292028, guid: 0e635e27bde3bdf4d8a6ecafbd480afd, type: 3}
